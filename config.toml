@@ -1,0 +1,50 @@
+# 科技圈日报 - 服务器行为配置模板（部署时修改后即生效）
+
+[glm]
+# 多格式 APIKEY 支持（自动识别，也可手动指定 openai / anthropic）：
+#   OpenAI 兼容：智谱 .../paas/v4、DeepSeek、Kimi、OpenRouter、Ollama 等，填各自 base_url
+#   Anthropic 兼容：GLM Coding Plan 的 https://open.bigmodel.cn/api/anthropic、Claude 系
+# Coding Plan 专用端点（套餐积分计费）；普通按量端点为 "https://open.bigmodel.cn/api/paas/v4"
+base_url = "https://open.bigmodel.cn/api/coding/paas/v4"
+model = "glm-5.3-flash"
+api_format = "auto"
+
+[bilibili]
+popular_pages = 3
+search_keywords = ["AI", "大模型", "芯片", "发布会", "机器人", "智能驾驶", "开源", "科技圈",
+  "英伟达", "OpenAI", "ChatGPT", "谷歌", "苹果", "特斯拉", "华为", "小米", "航天", "火箭",
+  "新能源", "量子计算", "程序员", "数码", "显卡", "自动驾驶"]
+days_window = 3            # 只收最近 N 天发布的视频
+search_pages = 3           # 每个关键词翻几页（1页=20条）
+
+[filter]
+min_play = 12000           # 播放量门槛（大V新视频早期播放低，靠粉丝档位排序保质量）
+min_duration = 60          # 最短秒数（滤掉贴片/广告）
+max_duration = 1800        # 最长秒数（30分钟）
+block_words = ["搞笑", "鬼畜", "翻唱", "整活", "抽奖", "脱下", "福利", "asmr", "助眠",
+  "我的世界", "minecraft", "红石", "速通", "王者荣耀", "原神", "崩坏", "明日方舟",
+  "第五人格", "蛋仔", "迷你世界", "游戏实况", "通关", "开放存档"]
+require_words_any = []     # 留空=不限；填写后标题/简介/标签须至少含其一
+max_candidates = 35        # 进入 GLM 精筛的最大数量
+max_analyze = 16           # 送去"真看视频"的数量上限（主要积分开销）
+
+[analyze]
+frames = 8                 # 每个视频抽帧数
+frame_width = 640          # 帧缩放宽（控制 token）
+subtitle_max_chars = 3000  # 字幕截断
+max_download_mb = 150      # 单视频下载上限
+
+[hub]
+bind = "::"                # 双栈：局域网 IPv4 与公网 IPv6 直连都可用
+port = 8300
+team_code = "CHANGE-ME"    # 团队码：全队共用，等于日报解密密钥，务必改掉
+
+[gitee]
+# 公网中转：出刊后自动推送到 Gitee 公开仓库（内容 AES 加密，密钥=团队码）
+push = true
+owner = ""                 # 你的 Gitee 用户名
+repo = ""                  # 仓库名（建公开仓库）
+
+[report]
+max_items = 12             # 日报条目上限
+min_items = 8              # 下限（候选不足时允许少于该值，但不报错）
