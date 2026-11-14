@@ -23,6 +23,11 @@ TOPIC_COLOR = {"AI": "#e056fd", "芯片": "#f0932b", "终端": "#eb4d4b", "互�
                "航天": "#22a6b3", "新能源": "#f6b93b", "其他": "#7f8fa6"}
 MAP_W, MAP_H = 960, 500
 GEOJSON = ROOT / "tools" / "map_data" / "world.geojson"
+if not GEOJSON.exists():  # 一键部署 EXE 内置底图（PyInstaller --add-data）
+    import sys as _sys
+    _bundled = Path(getattr(_sys, "_MEIPASS", "")) / "map_data" / "world.geojson"
+    if _bundled.exists():
+        GEOJSON = _bundled
 MAP_CACHE = DATA_DIR / "world_map.svg"
 GEO_CACHE = DATA_DIR / "geo_cache.json"
 
