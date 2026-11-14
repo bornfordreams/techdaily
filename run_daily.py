@@ -14,12 +14,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from techdaily.analyzer import analyze
-from techdaily.bilibili import Bilibili
-from techdaily.config import LOG_DIR, Settings, load_state, save_state
-from techdaily.glm import GLMClient
-from techdaily.prefilter import glm_refine, rule_filter
-from techdaily.report import build_report
+try:
+    from techdaily.analyzer import analyze
+    from techdaily.bilibili import Bilibili
+    from techdaily.config import LOG_DIR, Settings, load_state, save_state
+    from techdaily.glm import GLMClient
+    from techdaily.prefilter import glm_refine, rule_filter
+    from techdaily.report import build_report
+except ImportError:
+    print("错误：找不到 techdaily 包。请确认已【完整解压】服务器安装包，"
+          "且 techdaily 文件夹与 run_daily.py 在同一目录。", file=sys.stderr)
+    sys.exit(1)
 
 
 def setup_logging() -> None:
