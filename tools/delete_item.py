@@ -10,9 +10,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from config import Settings
-from gitee_push import push_all
-from report import load_report, render_md
+from techdaily.config import Settings
+from techdaily.gitee_push import push_all
+from techdaily.report import load_report, render_md
 
 
 def main() -> int:
@@ -37,7 +37,7 @@ def main() -> int:
     for i, it in enumerate(kept, 1):
         it["rank"] = i
     report["items"] = kept
-    from report import REPORT_DIR
+    from techdaily.report import REPORT_DIR
     (REPORT_DIR / f"{date}.json").write_text(
         json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     (REPORT_DIR / f"{date}.md").write_text(render_md(report), encoding="utf-8")
