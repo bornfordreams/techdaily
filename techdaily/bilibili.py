@@ -35,13 +35,14 @@ class Video:
     pubdate: int = 0
     play: int = 0
     tags: list = field(default_factory=list)
-    source: str = "search"  # popular=全站热门 / search=关键词搜索
+    source: str = "search"  # popular=全站热门 / search=关键词搜索 / text=外部文本源
     mid: str = ""           # UP主 uid（用于查粉丝数）
     fans: int = 0           # UP主粉丝数（信源质量权重）
+    ext_url: str = ""       # 文本源的外部原文链接（非B站时覆盖 url）
 
     @property
     def url(self) -> str:
-        return f"https://www.bilibili.com/video/{self.bvid}"
+        return self.ext_url or f"https://www.bilibili.com/video/{self.bvid}"
 
     @property
     def text(self) -> str:
