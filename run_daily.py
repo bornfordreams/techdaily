@@ -15,7 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 try:
-    from techdaily.analyzer import analyze
+    from techdaily.analyzer import analyze, purge_cache
     from techdaily.bilibili import Bilibili
     from techdaily.config import LOG_DIR, Settings, load_state, save_state
     from techdaily.glm import GLMClient
@@ -73,6 +73,7 @@ def main() -> int:
     glm = GLMClient(s)
     bl = Bilibili(s)
     state = load_state()
+    purge_cache(s)  # 出刊前顺手清理过期视频缓存
 
     log.info("=== 科技圈日报开始 %s ===", dt.datetime.now())
     videos = bl.collect()
