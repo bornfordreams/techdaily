@@ -32,14 +32,17 @@ def rule_filter(videos: list[Video], s: Settings, state: dict) -> list[Video]:
     for v in videos:
         if v.bvid in seen:
             continue
-        if not (s.min_duration <= v.duration_sec <= s.max_duration):
-            continue
-        if v.play < s.min_play:
-            continue
         text = v.text.lower()
         if any(w in text for w in s.block_words):
             continue
         if s.require_words_any and not any(w.lower() in text for w in s.require_words_any):
+            continue
+        if v.source == "text":
+            passed.append(v)  # 文本源无时长/播放概念，只走屏蔽词
+            continue
+        if not (s.min_duration <= v.duration_sec <= s.max_duration):
+            continue
+        if v.play < s.min_play:
             continue
         passed.append(v)
     # 排序：UP主粉丝档位优先，其次播放量（大V的新视频早期播放低但价值高）
