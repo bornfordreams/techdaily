@@ -13,8 +13,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from .config import DATA_DIR, Settings
-from .report import list_reports, load_report
+from config import DATA_DIR, Settings
+from report import list_reports, load_report
 
 log = logging.getLogger("techdaily.gitee")
 

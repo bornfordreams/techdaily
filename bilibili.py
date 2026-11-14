@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from .config import Settings
+from config import Settings
 
 log = logging.getLogger("techdaily.bilibili")
 

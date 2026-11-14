@@ -6,8 +6,8 @@ import json
 import logging
 from pathlib import Path
 
-from .config import REPORT_DIR, Settings
-from .glm import GLMClient
+from config import REPORT_DIR, Settings
+from glm import GLMClient
 
 log = logging.getLogger("techdaily.report")
 

@@ -13,8 +13,8 @@ import logging
 import time
 from datetime import date as date_cls
 
-from .config import DATA_DIR, Settings
-from .glm import GLMClient
+from config import DATA_DIR, Settings
+from glm import GLMClient
 
 log = logging.getLogger("techdaily.tracker")
 

@@ -10,20 +10,16 @@ import datetime as dt
 import logging
 import sys
 import time
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
 try:
-    from techdaily.analyzer import analyze, purge_cache
-    from techdaily.bilibili import Bilibili
-    from techdaily.config import LOG_DIR, Settings, load_state, save_state
-    from techdaily.glm import GLMClient
-    from techdaily.prefilter import glm_refine, rule_filter
-    from techdaily.report import build_report
+    from analyzer import analyze, purge_cache
+    from bilibili import Bilibili
+    from config import LOG_DIR, Settings, load_state, save_state
+    from glm import GLMClient
+    from prefilter import glm_refine, rule_filter
+    from report import build_report
 except ImportError:
-    print("错误：找不到 techdaily 包。请确认已【完整解压】服务器安装包，"
-          "且 techdaily 文件夹与 run_daily.py 在同一目录。", file=sys.stderr)
+    print("错误：找不到模块文件。请确认已【完整解压】服务器安装包，"
+          "且 analyzer.py 等模块与 run_daily.py 在同一目录。", file=sys.stderr)
     sys.exit(1)
 
 
@@ -52,8 +48,8 @@ def main() -> int:
     t0 = time.time()
 
     # 幂等保护：今日已出刊且非强制重跑 → 直接退出（防止 登录补跑/错过补跑 用空刊覆盖好刊）
-    from techdaily.config import REPORT_DIR
-    from techdaily.report import load_report
+    from config import REPORT_DIR
+    from report import load_report
     today = args.date or dt.date.today().isoformat()
     if (REPORT_DIR / f"{today}.json").exists() and not args.ignore_seen and not args.force:
         existing = load_report(today)
@@ -77,7 +73,7 @@ def main() -> int:
 
     log.info("=== 科技圈日报开始 %s ===", dt.datetime.now())
     videos = bl.collect()
-    from techdaily.sources import collect_text_sources
+    from sources import collect_text_sources
     texts = collect_text_sources(s)
     videos += texts
     log.info("外部文本源合计：%d 条（总池 %d）", len(texts), len(videos))
@@ -110,24 +106,24 @@ def main() -> int:
     report = build_report(summaries, s, glm, date=args.date)
 
     # 推送前终审（撤游戏/重复/非科技/编造嫌疑条目）
-    from techdaily.report import review_report
+    from report import review_report
     report = review_report(report, s, glm)
 
     # 大事件追踪（故事线挂接/完结）+ 监控看板生成（失败不阻塞出刊）
     try:
-        from techdaily.tracker import update_stories
+        from tracker import update_stories
         update_stories(report, s, glm)
     except Exception as e:
         log.warning("故事线追踪失败：%s", e)
     try:
-        from techdaily.board import write_board
+        from board import write_board
         write_board(s, glm)
     except Exception as e:
         log.warning("看板生成失败：%s", e)
 
     # 公网中转推送（方案B：Gitee 加密推送，队友 APK 直连拉取；失败不阻塞出刊）
     try:
-        from techdaily.gitee_push import push_all
+        from gitee_push import push_all
         push_all(report, s)
     except Exception as e:
         log.warning("Gitee 公网推送失败（不影响本地出刊）：%s", e)

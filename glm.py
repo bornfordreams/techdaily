@@ -17,7 +17,7 @@ from pathlib import Path
 
 import requests
 
-from .config import USAGE_FILE, Settings
+from config import USAGE_FILE, Settings
 
 log = logging.getLogger("techdaily.glm")
 

@@ -4,9 +4,9 @@ from __future__ import annotations
 import json
 import logging
 
-from .bilibili import Video
-from .config import Settings
-from .glm import GLMClient
+from bilibili import Video
+from config import Settings
+from glm import GLMClient
 
 log = logging.getLogger("techdaily.prefilter")
 
