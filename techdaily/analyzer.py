@@ -116,6 +116,7 @@ def analyze(v: Video, s: Settings, glm: GLMClient, bl: Bilibili) -> dict | None:
             '基于画面与字幕中真实出现的信息，不得编造，写成像科技媒体正文的连贯长文，不要分点", '
             '"key_points": ["要点1", "要点2"], '
             '"key_data": ["画面/字幕中的具体数据、型号、日期等证据"], '
+            '"location": {"place": "事件核心发生地(城市级)", "lat": 数值, "lon": 数值}, '
             '"importance": 1-10, "why": "重要性理由(一句话)"}\n'
             "importance 标准：影响行业格局或大量人群=8-10，重要产品/公司动态=6-7，"
             "一般资讯=4-5，趣味性内容=1-3。is_tech=false 会被丢弃。"
