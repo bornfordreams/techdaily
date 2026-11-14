@@ -20,7 +20,9 @@ except ModuleNotFoundError:  # Python < 3.11
 
 log = logging.getLogger("techdaily.config")
 
-ROOT = Path(__file__).resolve().parent.parent
+# 一键部署 EXE（冻结环境）通过 TECHDAILY_HOME 指定便携数据目录；
+# 源码部署时仍默认项目根目录。
+ROOT = Path(os.environ.get("TECHDAILY_HOME") or Path(__file__).resolve().parent.parent)
 DATA_DIR = ROOT / "data"
 REPORT_DIR = DATA_DIR / "reports"
 CACHE_DIR = DATA_DIR / "cache"
