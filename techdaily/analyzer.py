@@ -17,6 +17,39 @@ from .glm import GLMClient
 log = logging.getLogger("techdaily.analyzer")
 
 
+def _analyze_text(v: Video, s: Settings, glm: GLMClient) -> dict | None:
+    """文本源成文：标题+摘要+来源热度直接写报道（200-350字，只依据给定文本）。"""
+    system = ("你是资深科技媒体编辑。基于给定的新闻标题与摘要写结构化报道。"
+              "一切游戏内容一律 is_tech=false。资料之外的信息不得编造，"
+              "信息不足时如实写'报道未提及'。")
+    prompt = (
+        f"来源：{v.owner}\n标题：{v.title}\n摘要：{v.desc}\n热度/星标：{v.play}\n\n"
+        "输出JSON：\n"
+        '{"is_tech": true/false, "title": "事件标题(≤20字)", '
+        '"one_liner": "一句话摘要(≤40字)", '
+        '"detail": "详细报道(200-350字，只依据上述资料)", '
+        '"key_points": ["要点"], "key_data": ["资料中的具体数据/型号/日期"], '
+        '"importance": 1-10, '
+        '"location": {"place": "发生地城市", "lat": 数值, "lon": 数值}, '
+        '"why": "重要性理由"}\n'
+        "importance 标准：影响行业格局=8-10，重要产品/公司动态=6-7，一般资讯=4-5。"
+        "线上/全球事件取主要当事方总部所在地。is_tech=false 会被丢弃。"
+    )
+    try:
+        result = glm.chat_json(system, prompt, max_tokens=1500)
+    except Exception as e:
+        log.warning("文本源分析失败 %s: %s", v.bvid, e)
+        return None
+    if not result.get("is_tech", False):
+        log.info("文本源判定非科技，丢弃：%s", v.title[:30])
+        return None
+    result["url"] = v.url
+    result["bvid"] = v.bvid
+    result["owner"] = v.owner
+    result["play"] = v.play
+    return result
+
+
 def _ffmpeg_exe() -> str:
     import imageio_ffmpeg
     return imageio_ffmpeg.get_ffmpeg_exe()
@@ -90,7 +123,12 @@ def extract_frames(video: Path, s: Settings, ffmpeg: str, bvid: str) -> list[Pat
 
 
 def analyze(v: Video, s: Settings, glm: GLMClient, bl: Bilibili) -> dict | None:
-    """单视频理解，返回摘要 dict；任何一步失败返回 None（不阻塞整体流程）。"""
+    """单条目理解，返回摘要 dict；任何一步失败返回 None（不阻塞整体流程）。
+
+    source == "text"（HackerNews/IT之家/36氪/GitHub）走纯文本成文，不下载不看片。
+    """
+    if v.source == "text":
+        return _analyze_text(v, s, glm)
     try:
         ffmpeg = _ffmpeg_exe()
         video = download_video(v, s, ffmpeg)
