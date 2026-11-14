@@ -85,6 +85,8 @@ class Settings:
     src_ithome: bool = True
     src_36kr: bool = True
     src_github: bool = True
+    # analyze 附带
+    cache_days: int = 3
     # report
     max_items: int = 12
     min_items: int = 8
@@ -130,6 +132,7 @@ class Settings:
         s.src_ithome = str(_get("sources", "ithome", "true")).lower() != "false"
         s.src_36kr = str(_get("sources", "kr36", "true")).lower() != "false"
         s.src_github = str(_get("sources", "github_trending", "true")).lower() != "false"
+        s.cache_days = int(_get("analyze", "cache_days", s.cache_days))
         s.max_items = int(_get("report", "max_items", s.max_items))
         s.min_items = int(_get("report", "min_items", s.min_items))
         if not s.glm_api_key:
