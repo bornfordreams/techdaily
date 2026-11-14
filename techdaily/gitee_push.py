@@ -95,6 +95,10 @@ def push_all(report: dict, s: Settings) -> bool:
     (work / "reports").mkdir(exist_ok=True)
     (work / "reports" / f"{report['date']}.json").write_text(
         _envelope(report, key), encoding="utf-8")
+    board = DATA_DIR / "board.html"
+    if board.exists():
+        (work / "board.json").write_text(
+            _envelope(board.read_text(encoding="utf-8"), key), encoding="utf-8")
     if not (work / "README.md").exists():
         (work / "README.md").write_text(
             "# techdaily\n\n科技圈日报公网中转。内容为 AES-256-GCM 密文，团队码即密钥。\n",
