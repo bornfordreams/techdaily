@@ -8,12 +8,26 @@ param([switch]$Uninstall)
 
 $ErrorActionPreference = 'Stop'
 $Root = Split-Path -Parent $PSScriptRoot
-$Pyw = 'C:\Python315\pythonw.exe'
+# Python 自动探测（不写死路径；conda/官方安装/venv 均可）
+$Pyw = (Get-Command pythonw -ErrorAction SilentlyContinue).Source
+if (-not $Pyw) { $Pyw = (Get-Command python -ErrorAction SilentlyContinue).Source }
+if (-not $Pyw) { throw '未找到 Python：请先安装并加入 PATH（python.org 或 conda 均可）' }
+$Py = (Get-Command python -ErrorAction SilentlyContinue).Source
+if (-not $Py) { $Py = $Pyw }
 $TaskDaily = 'TechDaily-Daily'
 $TaskDuck = 'TechDaily-DuckDNS'
 $FwRule = 'TechDaily Hub'
 $RunKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
 $RunName = 'TechDaily-Hub'
+
+# 生成适配本机的任务包装脚本（定时任务用绝对 Python 路径，避免任务环境找不到 conda）
+$RunTask = @"
+Set-Location -LiteralPath '$Root'
+& '$Py' '$Root\run_daily.py' *>> '$Root\logs\task_out.log'
+"[`$(Get-Date -Format s)] run_daily exit=`$LASTEXITCODE" | Add-Content -LiteralPath '$Root\logs\task_out.log'
+exit `$LASTEXITCODE
+"@
+[IO.File]::WriteAllText((Join-Path $PSScriptRoot 'run_task.ps1'), $RunTask, (New-Object Text.UTF8Encoding($true)))
 
 if ($Uninstall) {
     schtasks /Delete /TN $TaskDaily /F 2>$null
