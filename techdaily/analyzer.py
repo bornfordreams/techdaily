@@ -17,6 +17,30 @@ from .glm import GLMClient
 log = logging.getLogger("techdaily.analyzer")
 
 
+def purge_cache(s: Settings) -> tuple:
+    """清理过期视频缓存（默认留3天供重刷），返回 (删除目录数, 释放MB)。"""
+    import shutil
+    import time as _time
+    if not CACHE_DIR.exists():
+        return 0, 0
+    cutoff = _time.time() - s.cache_days * 86400
+    n = mb = 0
+    for d in CACHE_DIR.iterdir():
+        if not d.is_dir():
+            continue
+        try:
+            if d.stat().st_mtime < cutoff:
+                sz = sum(f.stat().st_size for f in d.rglob("*") if f.is_file())
+                shutil.rmtree(d, ignore_errors=True)
+                n += 1
+                mb += sz
+        except Exception:
+            continue
+    if n:
+        log.info("视频缓存清理：%d 个目录 / %.0fMB（超过 %d 天）", n, mb / 1048576, s.cache_days)
+    return n, int(mb / 1048576)
+
+
 def _analyze_text(v: Video, s: Settings, glm: GLMClient) -> dict | None:
     """文本源成文：标题+摘要+来源热度直接写报道（200-350字，只依据给定文本）。"""
     system = ("你是资深科技媒体编辑。基于给定的新闻标题与摘要写结构化报道。"
