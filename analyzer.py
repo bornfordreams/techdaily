@@ -10,9 +10,9 @@ import re
 import subprocess
 from pathlib import Path
 
-from .bilibili import Bilibili, Video
-from .config import CACHE_DIR, Settings
-from .glm import GLMClient
+from bilibili import Bilibili, Video
+from config import CACHE_DIR, Settings
+from glm import GLMClient
 
 log = logging.getLogger("techdaily.analyzer")
 

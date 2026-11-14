@@ -17,7 +17,7 @@ from datetime import datetime, timedelta, timezone
 
 import requests
 
-from .bilibili import Video
+from bilibili import Video
 
 log = logging.getLogger("techdaily.sources")
 

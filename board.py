@@ -13,9 +13,9 @@ from collections import Counter
 from datetime import date as date_cls
 from pathlib import Path
 
-from .config import DATA_DIR, ROOT, Settings
-from .report import list_reports, load_report
-from .tracker import load_stories
+from config import DATA_DIR, ROOT, Settings
+from report import list_reports, load_report
+from tracker import load_stories
 
 log = logging.getLogger("techdaily.board")
 

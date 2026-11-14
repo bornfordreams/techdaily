@@ -1,0 +1,10 @@
+# 密钥
+.env
+
+# 运行时产物（缓存视频/成刊/状态/看板/日志）
+data/
+logs/
+
+# Python
+__pycache__/
+*.pyc

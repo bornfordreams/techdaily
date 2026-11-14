@@ -16,8 +16,8 @@ import logging
 import socket
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-from .config import Settings
-from .report import list_reports, load_report
+from config import Settings
+from report import list_reports, load_report
 
 log = logging.getLogger("techdaily.hub")
 
@@ -47,7 +47,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(403, {"error": "团队码不正确"})
             if path == "/api/board":
                 # 监控看板（纯 HTML，团队码鉴权后明文返回；公网通道则为加密 board.json）
-                from .config import DATA_DIR
+                from config import DATA_DIR
                 board = DATA_DIR / "board.html"
                 if not board.exists():
                     return self._json(404, {"error": "看板尚未生成"})
@@ -100,14 +100,14 @@ class Handler(BaseHTTPRequestHandler):
                          if it.get("rank") == rank), None)
             if not item:
                 return self._json(404, {"error": "找不到该条目"})
-            from .tracker import find_story_by_item
+            from tracker import find_story_by_item
             story = find_story_by_item(date, item.get("url", ""))
             story_ctx = ""
             if story:
                 story_ctx = ("\n\n该条目属于追踪中的大事件《" + story["title"] + "》，历史进展：\n" +
                              "\n".join(f"- {i['date']}：{i['title']}（{i.get('one_liner', '')}）"
                                        for i in story.get("items", [])))
-            from .glm import GLMClient
+            from glm import GLMClient
             glm = GLMClient(self.settings)
             system = ("你是科技圈日报的资深编辑。只基于给定报道内容回答用户提问，"
                       "可以结合故事线历史做综合分析；资料里没有的信息明确说'报道中未提及'，"
