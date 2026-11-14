@@ -18,7 +18,7 @@ days_window = 3            # 只收最近 N 天发布的视频
 search_pages = 3           # 每个关键词翻几页（1页=20条）
 
 [filter]
-min_play = 12000           # 播放量门槛（大V新视频早期播放低，靠粉丝档位排序保质量）
+min_play = 12000           # 播放量门槛
 min_duration = 60          # 最短秒数（滤掉贴片/广告）
 max_duration = 1800        # 最长秒数（30分钟）
 block_words = ["搞笑", "鬼畜", "翻唱", "整活", "抽奖", "脱下", "福利", "asmr", "助眠",
@@ -33,6 +33,7 @@ frames = 8                 # 每个视频抽帧数
 frame_width = 640          # 帧缩放宽（控制 token）
 subtitle_max_chars = 3000  # 字幕截断
 max_download_mb = 150      # 单视频下载上限
+cache_days = 3             # 视频缓存保留天数（过期自动清理，0=看完即删）
 
 [hub]
 bind = "::"                # 双栈：局域网 IPv4 与公网 IPv6 直连都可用
@@ -44,6 +45,13 @@ team_code = "CHANGE-ME"    # 团队码：全队共用，等于日报解密密钥
 push = true
 owner = ""                 # 你的 Gitee 用户名
 repo = ""                  # 仓库名（建公开仓库）
+
+[sources]
+# 外部文本源（与B站视频同池竞争，走同一套精筛/终审/事件去重；文本源不下载不看片）
+hackernews = true        # HN 首页高分条目（官方API免鉴权）
+ithome = true            # IT之家 RSS
+kr36 = true              # 36氪 RSS
+github_trending = true   # GitHub 近48h高星新仓库
 
 [report]
 max_items = 12             # 日报条目上限
