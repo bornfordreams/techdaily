@@ -45,6 +45,19 @@ class Handler(BaseHTTPRequestHandler):
                 return self._json(200, {"ok": True, "service": "techdaily-hub"})
             if not self._authed():
                 return self._json(403, {"error": "团队码不正确"})
+            if path == "/api/board":
+                # 监控看板（纯 HTML，团队码鉴权后明文返回；公网通道则为加密 board.json）
+                from .config import DATA_DIR
+                board = DATA_DIR / "board.html"
+                if not board.exists():
+                    return self._json(404, {"error": "看板尚未生成"})
+                body = board.read_text(encoding="utf-8").encode("utf-8")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/html; charset=utf-8")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+                return None
             if path == "/api/latest":
                 dates = list_reports()
                 if not dates:
@@ -69,6 +82,43 @@ class Handler(BaseHTTPRequestHandler):
 
     def log_message(self, fmt, *args) -> None:  # 精简默认访问日志
         log.debug("%s - %s", self.address_string(), fmt % args)
+
+    def do_POST(self) -> None:  # noqa: N802
+        """问AI：{question, date, rank} -> 结合该条目及其故事线全部历史的回答。"""
+        path = self.path.split("?")[0].rstrip("/")
+        if path != "/api/ask" or not self._authed():
+            return self._json(403, {"error": "团队码不正确"})
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+            req = json.loads(self.rfile.read(length).decode("utf-8") or "{}")
+            question = str(req.get("question", ""))[:500].strip()
+            date, rank = str(req.get("date", "")), int(req.get("rank") or 0)
+            if not question:
+                return self._json(400, {"error": "问题为空"})
+            report = load_report(date)
+            item = next((it for it in (report or {}).get("items", [])
+                         if it.get("rank") == rank), None)
+            if not item:
+                return self._json(404, {"error": "找不到该条目"})
+            from .tracker import find_story_by_item
+            story = find_story_by_item(date, item.get("url", ""))
+            story_ctx = ""
+            if story:
+                story_ctx = ("\n\n该条目属于追踪中的大事件《" + story["title"] + "》，历史进展：\n" +
+                             "\n".join(f"- {i['date']}：{i['title']}（{i.get('one_liner', '')}）"
+                                       for i in story.get("items", [])))
+            from .glm import GLMClient
+            glm = GLMClient(self.settings)
+            system = ("你是科技圈日报的资深编辑。只基于给定报道内容回答用户提问，"
+                      "可以结合故事线历史做综合分析；资料里没有的信息明确说'报道中未提及'，"
+                      "不得编造。回答 500 字以内。")
+            user = (f"今日报道：{json.dumps(item, ensure_ascii=False)}{story_ctx}\n\n"
+                    f"用户提问：{question}")
+            answer = glm.chat_text(system, user, max_tokens=1200)
+            return self._json(200, {"answer": answer, "story": story.get("title") if story else None})
+        except Exception as e:
+            log.exception("ask 失败")
+            return self._json(500, {"error": str(e)})
 
 
 def serve(s: Settings | None = None) -> None:
