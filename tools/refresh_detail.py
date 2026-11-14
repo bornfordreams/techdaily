@@ -8,12 +8,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-from analyzer import analyze
-from bilibili import Bilibili, Video
-from config import Settings
-from gitee_push import push_all
-from glm import GLMClient
-from report import build_report, load_report
+from techdaily.analyzer import analyze
+from techdaily.bilibili import Bilibili, Video
+from techdaily.config import Settings
+from techdaily.gitee_push import push_all
+from techdaily.glm import GLMClient
+from techdaily.report import build_report, load_report
 
 
 def main() -> int:
