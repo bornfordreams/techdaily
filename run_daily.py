@@ -71,6 +71,10 @@ def main() -> int:
 
     log.info("=== 科技圈日报开始 %s ===", dt.datetime.now())
     videos = bl.collect()
+    from techdaily.sources import collect_text_sources
+    texts = collect_text_sources(s)
+    videos += texts
+    log.info("外部文本源合计：%d 条（总池 %d）", len(texts), len(videos))
     candidates = rule_filter(videos, s, state)
     refined = glm_refine(candidates, glm)
     todo = refined[: s.max_analyze]
