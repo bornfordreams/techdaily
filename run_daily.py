@@ -103,6 +103,18 @@ def main() -> int:
     from techdaily.report import review_report
     report = review_report(report, s, glm)
 
+    # 大事件追踪（故事线挂接/完结）+ 监控看板生成（失败不阻塞出刊）
+    try:
+        from techdaily.tracker import update_stories
+        update_stories(report, s, glm)
+    except Exception as e:
+        log.warning("故事线追踪失败：%s", e)
+    try:
+        from techdaily.board import write_board
+        write_board(s, glm)
+    except Exception as e:
+        log.warning("看板生成失败：%s", e)
+
     # 公网中转推送（方案B：Gitee 加密推送，队友 APK 直连拉取；失败不阻塞出刊）
     try:
         from techdaily.gitee_push import push_all
