@@ -44,7 +44,7 @@ def build_report(summaries: list[dict], s: Settings, glm: GLMClient,
         "无论多火一律剔除，无任何例外。"
     )
     lines = [{"url": x["url"], "title": x.get("title", ""), "one_liner": x.get("one_liner", ""),
-              "detail": x.get("detail", ""),
+              "detail": x.get("detail", ""), "location": x.get("location"),
               "key_points": x.get("key_points", []), "key_data": x.get("key_data", []),
               "importance": x.get("importance", 5), "why": x.get("why", ""),
               "play": x.get("play", 0)} for x in summaries]
@@ -90,6 +90,8 @@ def build_report(summaries: list[dict], s: Settings, glm: GLMClient,
         merged.setdefault("evidence", by_url[url].get("key_data", []))
         if not merged.get("detail"):
             merged["detail"] = by_url[url].get("detail", "")
+        if not merged.get("location"):
+            merged["location"] = by_url[url].get("location") or {}
         cleaned.append(merged)
     report = {"date": date, "generated_at": dt.datetime.now().isoformat(timespec="seconds"),
               "headline": data.get("headline", "科技圈日报") if isinstance(data, dict) else "科技圈日报",
